@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Logto.AspNetCore.Authentication" Version="0.1.2" />
+  </ItemGroup>
+
 </Project>
