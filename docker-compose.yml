@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  app:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    image: svhd/logto:${TAG-latest}
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
+    ports:
+      - 3001:3001
+      - 3001:3002
+    environment:
+      - TRUST_PROXY_HEADER=1
+      - DB_URL=postgres://postgres:p0stgr3s@postgres:5432/logto
+      - ENDPOINT
+      - ADMIN_ENDPOINT
+  postgres:
+    image: postgres:16-alpine
+    user: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: p0stgr3s
