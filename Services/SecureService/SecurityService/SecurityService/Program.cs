@@ -4,13 +4,34 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+static void CheckSameSite(HttpContext httpContext, CookieOptions options)
+{
+    if (options.SameSite == SameSiteMode.None && options.Secure == false)
+    {
+        options.SameSite = SameSiteMode.Unspecified;
+    }
+}
+
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+    options.OnAppendCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+    options.OnDeleteCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
+});
+
 builder.Services.AddLogtoAuthentication(options =>
 {
-    options.Endpoint = "https://ire6mp.logto.app/";
-    options.AppId = "wt0pasp1m5ef0sidv4wuu";
-    options.AppSecret = "yU9qIOmPHaaDzMTilp8GBUSolG6FjNnf";
-    options.CallbackPath = "/Callback";
-    options.SignedOutCallbackPath = "/SignedOutCallback";
+    options.Endpoint = builder.Configuration["Logto:Endpoint"]!;
+    options.AppId = builder.Configuration["Logto:AppId"]!;
+    options.AppSecret = builder.Configuration["Logto:AppSecret"];
+    options.Scopes = new string[] {
+        LogtoParameters.Scopes.Email,
+        LogtoParameters.Scopes.Phone,
+        LogtoParameters.Scopes.CustomData,
+        LogtoParameters.Scopes.Identities
+    };
+    options.Resource = builder.Configuration["Logto:Resource"];
+    options.GetClaimsFromUserInfoEndpoint = true;
 });
 
 var app = builder.Build();
@@ -24,7 +45,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

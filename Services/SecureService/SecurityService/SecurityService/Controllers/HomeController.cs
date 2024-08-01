@@ -15,8 +15,12 @@ namespace SecurityService.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var logtoOptions = HttpContext.GetLogtoOptions();
+            ViewData["Resource"] = logtoOptions.Resource;
+            ViewData["AccessToken"] = await HttpContext.GetTokenAsync(LogtoParameters.Tokens.AccessToken);
+   
             var claims = User.Claims;
 
             // Get the user ID
@@ -33,20 +37,6 @@ namespace SecurityService.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        public IActionResult SignIn()
-        {
-            // This will redirect the user to the Logto sign-in page.
-            return Challenge(new AuthenticationProperties { RedirectUri = "/" });
-        }
-
-        // Use the `new` keyword to avoid conflict with the `ControllerBase.SignOut` method
-        new public IActionResult SignOut()
-        {
-            // This will clear the authentication cookie and redirect the user to the Logto sign-out page
-            // to clear the Logto session as well.
-            return SignOut(new AuthenticationProperties { RedirectUri = "/" });
         }
     }
 }
