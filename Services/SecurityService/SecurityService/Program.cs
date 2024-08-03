@@ -1,4 +1,5 @@
-using Logto.AspNetCore.Authentication;
+using Logto.Authentication.extensions;
+using Logto.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.OnAppendCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
     options.OnDeleteCookie = cookieContext => CheckSameSite(cookieContext.Context, cookieContext.CookieOptions);
 });
-
+// Use the extension method to add Logto authentication services
 builder.Services.AddLogtoAuthentication(options =>
 {
     options.Endpoint = builder.Configuration["Logto:Endpoint"]!;
@@ -32,6 +33,7 @@ builder.Services.AddLogtoAuthentication(options =>
     };
     options.Resource = builder.Configuration["Logto:Resource"];
     options.GetClaimsFromUserInfoEndpoint = true;
+    options.RequireHttpsMetadata = false;
 });
 
 var app = builder.Build();
@@ -45,7 +47,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

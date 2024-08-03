@@ -1,8 +1,9 @@
-using Logto.AspNetCore.Authentication;
+using static Logto.Authentication.extensions.HttpContextExtensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using SecurityService.Models;
 using System.Diagnostics;
+using Logto.Authentication;
 
 namespace SecurityService.Controllers
 {
